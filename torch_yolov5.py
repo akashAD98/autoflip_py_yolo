@@ -1,7 +1,7 @@
 import cv2
 import torch
 
-cap = cv2.VideoCapture('/content/withbackgroung_op.mp4')
+cap = cv2.VideoCapture('../short_test.mp4')
 # Model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s')
 model.classes = [0]
@@ -14,12 +14,20 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-    results = model(frame)
-    #print("1",results.pandas().xyxy[0])
-
-    print(results.xywh)
-
-
+    results = model(frame, size=640)
+    for _, image_predictions_in_xyxy_format in enumerate(results.xywh):
+        for pred in image_predictions_in_xyxy_format.cpu().detach().numpy():
+            x1, y1, x2, y2 = (
+                int(pred[0]),
+                int(pred[1]),
+                int(pred[2]),
+                int(pred[3]),
+            )
+            bbox = [x1, y1, x2, y2]
+            score = pred[4]
+            category_name = model.names[int(pred[5])]
+            category_id = pred[5]
+    
     #crops_person = results.crop(save=True)
 
     #face = max(results.crop(save=True), key=lambda x: x[2] * x[3])
@@ -30,11 +38,11 @@ while True:
     desired_size = 200
 
 
-    result.write(frame)
+    results.write(frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     
 cap.release()
-result.release()
+results.release()
 cv2.destroyAllWindows()
