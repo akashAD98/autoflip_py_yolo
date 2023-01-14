@@ -1,0 +1,5 @@
+  0: Covid19
+  1: Lung_opacity
+  2: Normal_xray
+  3: Tuberculosis
+  4: Viral_Pneumonia
