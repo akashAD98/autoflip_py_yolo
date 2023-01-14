@@ -3,14 +3,7 @@
 
 
 import torch
-# model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True).eval()
-import torch
-
 model = torch.hub.load('ultralytics/yolov5', 'custom', '/content/drive/MyDrive/yolov5/runs/train-cls/exp9/weights/best.pt') 
-
-#model = torch.hub.load('ultralytics/yolov5', 'yolov5s', autoshape=False, pretrained=False)  # load scratch
-print(model)
-#model = torch.hub.load('ultralytics/yolov5','yolov5s-cls.pt')
 
 
 
@@ -19,10 +12,13 @@ from PIL import Image
 from torchvision import transforms
 
 # Download human-readable labels for ImageNet.
+
 #response = requests.get("https://git.io/JJkYN")
 #response = "/content/classes.txt"
+
 labels = "/content/classes.txt"
-# response.text.split("\n")
+
+#response.text.split("\n")
 
 def predict(inp):
   inp = transforms.ToTensor()(inp).unsqueeze(0)
