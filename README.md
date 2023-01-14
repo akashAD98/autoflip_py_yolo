@@ -1,0 +1,42 @@
+# autoflip_py_yolo
+
+
+
+#pip install gradio
+
+```
+import torch
+model = torch.hub.load('ultralytics/yolov5', 'custom', '/content/drive/MyDrive/yolov5/runs/train-cls/exp9/weights/best.pt') 
+```
+
+```
+import requests
+from PIL import Image
+from torchvision import transforms
+
+# Download human-readable labels for ImageNet.
+
+#response = requests.get("https://git.io/JJkYN")
+#response = "/content/classes.txt"
+
+labels = "/content/classes.txt"
+
+#response.text.split("\n")
+
+def predict(inp):
+  inp = transforms.ToTensor()(inp).unsqueeze(0)
+  with torch.no_grad():
+    prediction = torch.nn.functional.softmax(model(inp)[0], dim=0)
+    print("predict",prediction)
+    confidences = {labels[i]: float(prediction[i]) for i in range(5)}    
+  return confidences
+```
+
+```
+import gradio as gr
+gr.Interface(fn=predict, 
+             inputs=gr.Image(type="pil"),
+             outputs=gr.Label(num_top_classes=3),
+             examples=["/content/2022-12-11_19h29_44.png", "/content/2022-12-11_19h34_25.png"]).launch(show_error=True)
+             
+```
