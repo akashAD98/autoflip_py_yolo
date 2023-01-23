@@ -28,7 +28,9 @@ desired_aspect_ratio = 4/16
 
 
 # Initialize object tracker
-tracker = Sort()
+tracker_sort = Sort()
+
+
 
 print("tracketr loadeda")
 while True:
@@ -36,41 +38,34 @@ while True:
     if not ret:
         break
     # Run object detector on frame
+    tracker_outputs = [None]
     results = model(frame, size=640)
 
-    boxes = []
-    confidences = []
-
-    for _, image_predictions_in_xyxy_format in enumerate(results.xywh):
-            for pred in image_predictions_in_xyxy_format.cpu().detach().numpy():
-                x1, y1, x2, y2 = (
-                    int(pred[0]),
-                    int(pred[1]),
-                    int(pred[2]),
-                    int(pred[3]),
-                )
-
-                bbox = [x1, y1, x2, y2]
-                score = pred[4]
-
-                print("score",score)
-                #print("score",score)
-                category_name = model.names[int(pred[5])]
-                #print('category_name',category_name)
-                category_id = pred[5]
-                
-                #update bbox to tracker
+    for image_id, prediction in enumerate(results.pred):
+        tracker_type = tracker_sort
+        if tracker_type is not None:
+            tracker_outputs[image_id] = tracker_sort.update(prediction.cpu())
 
 
-                #####################################################  need help for this part not getting bbox 
-                boxes = tracker.update(bbox)
 
-                x, y, w, h = boxes[0]
+            print("tracker updaated.............>>>>>.")
+            for output in tracker_outputs[image_id]:
+
+                bbox, track_id, category_id, score = (
+                            output[:4],
+                            int(output[4]),
+                            output[5],
+                            output[6],
+                        )
+                category_name = model.names[int(category_id)]
+
+
+                x, y, w, h = output[:4]  ##boxes[0]
                 x_center = x + w/2
                 y_center = y + h/2
                 aspect_ratio = float(w) / h
-    
-                ###############################################
+
+                #label = f"Id:{track_id} {category_name} {float(score):.2f}"
 
     # Check if object is still in center of frame
     if aspect_ratio < desired_aspect_ratio:
